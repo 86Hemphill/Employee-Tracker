@@ -11,6 +11,12 @@ const connection = mysql.createConnection({
 
 connection.connect(function(err) {
   if (err) throw err;
-  start();
+  console.log(connection.threadId);
+  connection.query("SELECT * FROM employee;", function(err, res) {
+    if (err) throw err;
+    console.table(res);
+    })
+//   start();
 });
 
+// function
