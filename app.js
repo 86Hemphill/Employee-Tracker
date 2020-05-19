@@ -24,7 +24,7 @@ async function start() {
     try {
       const questions = await inquirer.prompt([
         {
-          type: "rawlist",
+          type: "list",
           message: "What would you like to do?",
           name: "startWhat",
           choices: [
@@ -34,7 +34,10 @@ async function start() {
               "Add A Department",
               "Add A Role",
               "Add An Employee",
-              "Exit"
+              "Delete A Department",
+              "Delete A Role",
+              "Delete An Employee",
+              "--Exit--"
           ]
         }])
         .then(function(answer) {
@@ -62,20 +65,25 @@ async function start() {
             case "Add An Employee":
               addEmploy();
               break;
+
+            case "Delete A Department":
+              delDept();
+              break;
+
+            case "Delete A Role":
+              delRole();
+              break;
+
+            case "Delete An Employee":
+              delEmploy();
+              break;
       
-            case "Exit":
+            case "--Exit--":
               connection.end();
               break;
             }
           });
-      // console.log(questions);
-    //   const userInfo = await api.getUser(questions.username);
-    //   questions.email = userInfo.email;
-    //   questions.profilePic = userInfo.avatar_url;
-    //   const answers = generateMarkdown(questions);
-    //   fs.writeFile(filename, answers, function () {
-    //     console.log("Successfully generated README.md file!");
-    //   });
+
     } catch (err) {
       console.log(err);
     }
@@ -85,13 +93,15 @@ async function start() {
     connection.query("SELECT * FROM department;", function(err, res) {
           if (err) throw err;
           console.table(res);
-          })
+          start();
+          });
   };
 
   function allRoles() {
     connection.query("SELECT * FROM role;", function(err, res) {
       if (err) throw err;
       console.table(res);
+      start();
       })
 };
 
@@ -99,6 +109,7 @@ function allEmployees() {
   connection.query("SELECT * FROM employee;", function(err, res) {
     if (err) throw err;
     console.table(res);
+    start();
     })
 };
 
@@ -121,13 +132,6 @@ function addDept() {
     );
   });
 }
-
-function allEmployees() {
-  connection.query("SELECT * FROM employee;", function(err, res) {
-    if (err) throw err;
-    console.table(res);
-    })
-};
 
 function addRole() {
   inquirer
@@ -179,3 +183,81 @@ function addRole() {
   });
 };
 
+function addEmploy() {
+  console.log("Function not built yet!");
+}
+
+function delDept() {
+  connection.query("SELECT * FROM department;", function(err, res) {
+    if (err) throw err;
+    console.table(res);
+    // });
+    inquirer.prompt([
+      {
+        name: "deptID",
+        type: "input",
+        message: "Input the ID of the department that you would like to delete. (Warning: This will perform the delete)"
+      },
+    ])
+    .then(function(answer) {
+      connection.query(
+        `DELETE FROM department WHERE id = ${parseInt(answer.deptID)}`, 
+        function(err) {
+          if (err) throw err;
+          console.log("Department deleted successfully!");
+          start();
+        }
+      );
+    });
+  });
+}
+
+function delRole() {
+  connection.query("SELECT * FROM role;", function(err, res) {
+    if (err) throw err;
+    console.table(res);
+    // });
+    inquirer.prompt([
+      {
+        name: "roleID",
+        type: "input",
+        message: "Input the ID of the role that you would like to delete. (Warning: This will perform the delete)"
+      },
+    ])
+    .then(function(answer) {
+      connection.query(
+        `DELETE FROM role WHERE id = ${parseInt(answer.roleID)}`, 
+        function(err) {
+          if (err) throw err;
+          console.log("Role deleted successfully!");
+          start();
+        }
+      );
+    });
+  });
+}
+
+function delEmploy() {
+  connection.query("SELECT * FROM employee;", function(err, res) {
+    if (err) throw err;
+    console.table(res);
+    // });
+    inquirer.prompt([
+      {
+        name: "empID",
+        type: "input",
+        message: "Input the ID of the employee that you would like to delete. (Warning: This will perform the delete)"
+      },
+    ])
+    .then(function(answer) {
+      connection.query(
+        `DELETE FROM employee WHERE id = ${parseInt(answer.empID)}`, 
+        function(err) {
+          if (err) throw err;
+          console.log("Employee deleted successfully!");
+          start();
+        }
+      );
+    });
+  });
+}
