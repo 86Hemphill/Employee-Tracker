@@ -16,12 +16,16 @@ connection.connect(function(err) {
   start();
 });
 
+function validateEntry(name){
+  return name !== '';
+};
+
 async function start() {
     try {
       const questions = await inquirer.prompt([
         {
           type: "list",
-          message: "What would you like to do?",
+          message: "What would you like to do? (Press 'CTRL'+'C' at any time to exit)",
           name: "startWhat",
           choices: [
               "View All Departments",
@@ -30,6 +34,8 @@ async function start() {
               "Add A Department",
               "Add A Role",
               "Add An Employee",
+              "Update An Employee's Role",
+              "Update An Employee's Manager",
               "Delete A Department",
               "Delete A Role",
               "Delete An Employee",
@@ -60,6 +66,14 @@ async function start() {
 
             case "Add An Employee":
               addEmploy();
+              break;
+
+            case "Update An Employee's Role":
+              updateRole();
+              break;
+
+            case "Update An Employee's Manager":
+              updateManager();
               break;
 
             case "Delete A Department":
@@ -115,7 +129,8 @@ function addDept() {
     {
       name: "deptName",
       type: "input",
-      message: "What is the name of the department that you would like to add?"
+      message: "What is the name of the department that you would like to add?",
+      validate: validateEntry
     }
   ])
   .then(function(answer) {
@@ -253,6 +268,68 @@ function addEmploy() {
       }
     );
   });
+};
+
+function updateRole() {
+  connection.query("SELECT id, first_name, last_name FROM employee;", function (err, res) {
+    const empArr = [];
+    for (let i = 0; i < res.length; i++) {
+      const employee = res[i];
+      const employeeName = `${employee.first_name} ${employee.last_name}`;
+      const employeeData = {name: employeeName, value: employee.id}
+      empArr.push(employeeData);
+    }
+
+  inquirer
+  .prompt([
+    {
+      name: "name",
+      type: "list",
+      message: "Which employee's role would you like to update?",
+      choices: empArr
+    },
+    {
+      name: "role",
+      type: "list",
+      message: "Which new role will this employee receive?",
+      choices: [
+        "Sales Lead",
+        "Salesperson",
+        "Lead Engineer",
+        "Software Engineer",
+        "Accountant",
+        "Legal Team Lead",
+        "Lawyer"
+    ]}
+  ])
+  .then(function(answer) {
+    answer.role = answer.role.toLowerCase();
+    if (answer.role === "sales lead") {
+      answer.role = 1;
+    } else if (answer.role === "salesperson") {
+      answer.role = 2;
+    } else if (answer.role === "lead engineer") {
+      answer.role = 3;
+    } else if (answer.role === "software engineer") {
+      answer.role = 4;
+    } else if (answer.role === "accountant") {
+      answer.role = 5;
+    } else if (answer.role === "legal team lead") {
+      answer.role = 6;
+    } else if (answer.role === "lawyer") {
+      answer.role = 7;
+    };
+
+    connection.query(
+      `UPDATE employee SET role_id = ${answer.role} WHERE id = ${answer.name};`,
+      function(err) {
+        if (err) throw err;
+        console.log("Employee role updated successfully!");
+        start();
+      }
+    );
+  });
+});
 };
 
 function delDept() {
