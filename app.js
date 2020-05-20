@@ -13,10 +13,6 @@ const connection = mysql.createConnection({
 connection.connect(function(err) {
   if (err) throw err;
   console.log(connection.threadId);
-//   connection.query("SELECT * FROM employee;", function(err, res) {
-//     if (err) throw err;
-//     console.table(res);
-//     })
   start();
 });
 
@@ -155,15 +151,15 @@ function addRole() {
   ])
   .then(function(answer) {
     answer.dept = answer.dept.toLowerCase();
-    if (answer.dept = "engineering") {
+    if (answer.dept === "engineering") {
       answer.dept = 1;
-    } else if (answer.dept = "finance") {
+    } else if (answer.dept === "finance") {
       answer.dept = 2;
-    } else if (answer.dept = "legal") {
+    } else if (answer.dept === "legal") {
       answer.dept = 3;
-    } else if (answer.dept = "sales") {
+    } else if (answer.dept === "sales") {
       answer.dept = 4;
-    } else if (answer.dept = "it") {
+    } else if (answer.dept === "it") {
       answer.dept = 5;
     };
 
@@ -184,8 +180,80 @@ function addRole() {
 };
 
 function addEmploy() {
-  console.log("Function not built yet!");
-}
+  inquirer
+  .prompt([
+    {
+      name: "firstName",
+      type: "input",
+      message: "What is the first name of the employee that you would like to add?"
+    },
+    {
+      name: "lastName",
+      type: "input",
+      message: "What is the last name of the employee that you would like to add?"
+    },
+    {
+      name: "role",
+      type: "input",
+      message: "What is the employee's role?"
+    },
+    {
+      name: "manager",
+      type: "input",
+      message: "Who is the employee's manager? (Press ENTER if DNA)"
+    },
+  ])
+  .then(function(answer) {
+    answer.role = answer.role.toLowerCase();
+    if (answer.role === "sales lead") {
+      answer.role = 1;
+    } else if (answer.role === "salesperson") {
+      answer.role = 2;
+    } else if (answer.role === "lead engineer") {
+      answer.role = 3;
+    } else if (answer.role === "software engineer") {
+      answer.role = 4;
+    } else if (answer.role === "accountant") {
+      answer.role = 5;
+    } else if (answer.role === "legal team lead") {
+      answer.role = 6;
+    } else if (answer.role === "lawyer") {
+      answer.role = 7;
+    };
+
+    answer.manager = answer.manager.toLowerCase();
+    if (answer.manager === "john doe") {
+      answer.manager = 1;
+    } else if (answer.manager === "mike chan") {
+      answer.manager = 2;
+    } else if (answer.manager === "ashley rodriguez") {
+      answer.manager = 3;
+    } else if (answer.manager === "kevin tupik") {
+      answer.manager = 4;
+    } else if (answer.manager === "malia brown") {
+      answer.manager = 5;
+    } else if (answer.manager === "sarah lourd") {
+      answer.manager = 6;
+    } else if (answer.manager === "tom allen") {
+      answer.manager = 7;
+    };
+
+    connection.query(
+      "INSERT INTO employee SET ?", 
+      {
+        "first_name": answer.firstName, 
+        "last_name": answer.lastName, 
+        role_id: answer.role,
+        manager_id: answer.manager
+      },
+      function(err) {
+        if (err) throw err;
+        console.log("Employee added successfully!");
+        start();
+      }
+    );
+  });
+};
 
 function delDept() {
   connection.query("SELECT * FROM department;", function(err, res) {
