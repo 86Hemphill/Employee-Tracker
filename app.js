@@ -116,7 +116,8 @@ async function start() {
 };
 
 function allEmployees() {
-  connection.query("SELECT * FROM employee;", function(err, res) {
+  connection.query("SELECT e.first_name, e.last_name, r.title, r.salary, d.name FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id;", 
+    function(err, res) {
     if (err) throw err;
     console.table(res);
     start();
